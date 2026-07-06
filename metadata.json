@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Khmer App Store",
+  "description": "កម្មវិធី App Store ខ្មែរទំនើប ប្រកបដោយសុវត្ថិភាពខ្ពស់ ស្វែងរកងាយស្រួល ពិនិត្យមេរោគស្វ័យប្រវត្តិ ជជែកផ្ទាល់ និងបម្រុងទុកទិន្នន័យ។ A modern and secure Cambodian App Store with automatic safety scanning, live support chat, review rating, automatic updates, backup, and device sync.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
