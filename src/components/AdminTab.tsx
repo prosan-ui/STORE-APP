@@ -79,7 +79,9 @@ export const AdminTab: React.FC<AdminTabProps> = ({
     { name: "Map", label: "ផែនទី / ធ្វើដំណើរ (Map)" },
     { name: "Music", label: "តន្ត្រី / ភ្លេង (Music)" },
     { name: "Compass", label: "រុករក (Compass)" },
-    { name: "ShoppingBag", label: "ទិញទំនិញ / ផ្សារ (ShoppingBag)" }
+    { name: "ShoppingBag", label: "ទិញទំនិញ / ផ្សារ (ShoppingBag)" },
+    { name: "Camera", label: "កាមេរ៉ា / រូបថត (Camera)" },
+    { name: "Heart", label: "សុខភាព / បេះដូង (Heart)" }
   ];
 
   // PIN validation handler
@@ -151,6 +153,8 @@ export const AdminTab: React.FC<AdminTabProps> = ({
         case "E-commerce": return "ពាណិជ្ជកម្មអេឡិចត្រូនិច";
         case "Games": return "ហ្គេម";
         case "Productivity": return "ផលិតភាព";
+        case "Photography": return "រូបថត";
+        case "Health": return "សុខភាព";
         default: return "ឧបករណ៍ប្រើប្រាស់";
       }
     };

@@ -126,7 +126,9 @@ export default function App() {
     Utility: "ឧបករណ៍ប្រើប្រាស់",
     "E-commerce": "ពាណិជ្ជកម្មអេឡិចត្រូនិច",
     Games: "ហ្គេម",
-    Productivity: "ផលិតភាព"
+    Productivity: "ផលិតភាព",
+    Photography: "រូបថត",
+    Health: "សុខភាព"
   };
 
   // Auto update trigger simulation

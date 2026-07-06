@@ -1,4 +1,4 @@
-export const CATEGORIES = ["Fintech", "Education", "Utility", "E-commerce", "Games", "Productivity"] as const;
+export const CATEGORIES = ["Fintech", "Education", "Utility", "E-commerce", "Games", "Productivity", "Photography", "Health"] as const;
 export type AppCategory = typeof CATEGORIES[number];
 
 export interface VersionRelease {

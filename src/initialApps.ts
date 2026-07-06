@@ -288,5 +288,65 @@ export const initialApps: AppItem[] = [
         changesKhmer: ["បន្ថែមការទូទាត់ប្រាក់ដោយផ្ទាល់ភ្លាមៗតាមរយៈ KHQR របស់បាគង", "បន្ថែមការតាមដានអ្នកដឹកជញ្ជូនផ្ទាល់លើផែនទីក្នុងកម្មវិធី", "កាត់បន្ថយការប្រើប្រាស់អ៊ីនធឺណិតដោយបង្កើនល្បឿនបង្ហោះរូបភាពទំនិញ"]
       }
     ]
+  },
+  {
+    id: "angkor-lens",
+    name: "Angkor Lens Studio",
+    nameKhmer: "ស្ទូឌីយ៉ូថតរូប អង្គរឡេន",
+    category: "Photography",
+    categoryKhmer: "រូបថត",
+    rating: 4.8,
+    reviewsCount: 156,
+    developer: "Nokor Creative",
+    size: "52 MB",
+    version: "1.2.0",
+    description: "Professional photo editor with custom Khmer filters, historic temple presets, and high-quality exposure tools designed for Cambodian scenery.",
+    descriptionKhmer: "កម្មវិធីកែសម្រួលរូបភាពអាជីពដែលមានតម្រងពណ៌បែបវប្បធម៌ខ្មែរ ស្ទីលរូបភាពប្រាសាទបុរាណ និងឧបករណ៍កម្រិតពន្លឺខ្ពស់ដែលរចនាឡើងសម្រាប់ទេសភាពប្រទេសកម្ពុជា។",
+    iconName: "Camera",
+    isVerified: true,
+    downloadCount: "45K+",
+    lastUpdated: "June 15, 2026",
+    status: "not_installed",
+    downloadProgress: 0,
+    fileSafetyScore: 100,
+    permissions: ["Camera Access", "Storage Access"],
+    versionHistory: [
+      {
+        version: "1.2.0",
+        date: "June 15, 2026",
+        changes: ["Added Preah Vihear Sunset filter", "Improved portrait detail enhancement", "Fixed photo saving delay on Android 14"],
+        changesKhmer: ["បន្ថែមតម្រងពណ៌ថ្ងៃលិចប្រាសាទព្រះវិហារ", "កែលម្អការបង្កើនភាពច្បាស់នៃរូបថតមនុស្ស", "ដោះស្រាយបញ្ហាយឺតយ៉ាវពេលរក្សាទុករូបថតលើប្រព័ន្ធប្រតិបត្តិការ Android 14"]
+      }
+    ]
+  },
+  {
+    id: "khmer-health-care",
+    name: "Khmer Health Guard",
+    nameKhmer: "ថែទាំសុខភាពខ្មែរ",
+    category: "Health",
+    categoryKhmer: "សុខភាព",
+    rating: 4.7,
+    reviewsCount: 220,
+    developer: "Cambodia e-Health Initiative",
+    size: "34 MB",
+    version: "2.1.5",
+    description: "Comprehensive healthcare companion. Track your daily steps, monitor water intake, access local medical directory, and read verified wellness tips in Khmer.",
+    descriptionKhmer: "ជំនួយការថែទាំសុខភាពទូទៅ។ តាមដានជំហានដើរប្រចាំថ្ងៃ ការទទួលទានទឹក ស្វែងរកអាសយដ្ឋានមន្ទីរពេទ្យ និងគន្លឹះថែទាំសុខភាពដែលបានផ្ទៀងផ្ទាត់ជាភាសាខ្មែរ។",
+    iconName: "Heart",
+    isVerified: true,
+    downloadCount: "90K+",
+    lastUpdated: "July 01, 2026",
+    status: "not_installed",
+    downloadProgress: 0,
+    fileSafetyScore: 100,
+    permissions: ["Physical Activity Tracking", "Internet Connection", "Notification Access"],
+    versionHistory: [
+      {
+        version: "2.1.5",
+        date: "July 01, 2026",
+        changes: ["Added daily step counter widget", "Updated emergency medical contact list for 25 provinces", "Improved notification reminder system"],
+        changesKhmer: ["បន្ថែម Widget រាប់ជំហានដើរប្រចាំថ្ងៃ", "ធ្វើបច្ចុប្បន្នភាពលេខទំនាក់ទំនងសង្គ្រោះបន្ទាន់ទូទាំង ២៥ ខេត្តក្រុង", "កែលម្អប្រព័ន្ធរំលឹកសារឲ្យកាន់តែប្រសើរឡើង"]
+      }
+    ]
   }
 ];

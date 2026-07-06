@@ -14,7 +14,9 @@ import {
   RefreshCw, 
   ShieldCheck,
   ShoppingBag,
-  Share2
+  Share2,
+  Camera,
+  Heart
 } from "lucide-react";
 import { AppItem } from "../types";
 
@@ -36,6 +38,8 @@ export const getIconComponent = (name: string, className = "w-6 h-6") => {
     case "Music": return <Music className={className} />;
     case "Compass": return <Compass className={className} />;
     case "ShoppingBag": return <ShoppingBag className={className} />;
+    case "Camera": return <Camera className={className} />;
+    case "Heart": return <Heart className={className} />;
     default: return <BookOpen className={className} />;
   }
 };
