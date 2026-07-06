@@ -32,7 +32,9 @@ import {
   Music,
   ShoppingBag,
   Camera,
-  Heart
+  Heart,
+  Flag,
+  X
 } from "lucide-react";
 import { initialApps } from "./initialApps";
 import { AppItem, Review, CATEGORIES, Message } from "./types";
@@ -42,7 +44,7 @@ import { ScannerTab } from "./components/ScannerTab";
 import { SupportTab } from "./components/SupportTab";
 import { BackupTab } from "./components/BackupTab";
 import { AdminTab } from "./components/AdminTab";
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 
 export default function App() {
   const [apps, setApps] = useState<AppItem[]>(() => {
@@ -141,6 +143,18 @@ export default function App() {
     app: AppItem;
   } | null>(null);
 
+  const [toast, setToast] = useState<{ message: string; type: "success" | "warning" | "error" | "info" } | null>(null);
+
+  // Auto-dismiss toast notification after 4 seconds
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => {
+        setToast(null);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
   // Close context menu on window click
   useEffect(() => {
     const handleCloseMenu = () => setContextMenu(null);
@@ -185,6 +199,16 @@ export default function App() {
 
   const handleToggleNotifications = (appId: string) => {
     setApps(prev => prev.map(a => a.id === appId ? { ...a, notificationsEnabled: !a.notificationsEnabled } : a));
+    setContextMenu(null);
+  };
+
+  const handleReportApp = (app: AppItem) => {
+    setToast({
+      message: language === "kh" 
+        ? `កម្មវិធី "${app.nameKhmer}" ត្រូវបានរាយការណ៍សម្រាប់បញ្ហាសុវត្ថិភាព។ ក្រុមការងារយើងខ្ញុំនឹងពិនិត្យមើលក្នុងពេលឆាប់ៗនេះ។`
+        : `App "${app.name}" has been flagged for suspicious activity. Our security team will review it shortly.`,
+      type: "warning"
+    });
     setContextMenu(null);
   };
 
@@ -797,7 +821,7 @@ export default function App() {
                     handleDownload(contextMenu.app);
                     setContextMenu(null);
                   }}
-                  className="w-full text-left px-3 py-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 rounded-xl flex items-center gap-2 transition-all cursor-pointer"
+                  className="w-full text-left px-3 py-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 rounded-xl flex items-center gap-2 transition-all duration-200 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-95 cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
                   ទាញយកភ្លាមៗ (Quick Install)
@@ -811,7 +835,7 @@ export default function App() {
                     handleUpdate(contextMenu.app);
                     setContextMenu(null);
                   }}
-                  className="w-full text-left px-3 py-2 text-xs font-bold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 rounded-xl flex items-center gap-2 transition-all animate-pulse cursor-pointer"
+                  className="w-full text-left px-3 py-2 text-xs font-bold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 rounded-xl flex items-center gap-2 transition-all duration-200 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-95 animate-pulse cursor-pointer"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                   បច្ចុប្បន្នភាពភ្លាមៗ (Quick Update)
@@ -836,7 +860,7 @@ export default function App() {
               <button
                 id={`context-pin-${contextMenu.app.id}`}
                 onClick={() => handleTogglePin(contextMenu.app.id)}
-                className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-xl flex items-center justify-between transition-all cursor-pointer"
+                className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-xl flex items-center justify-between transition-all duration-200 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-95 cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <Pin className={`w-3.5 h-3.5 ${contextMenu.app.isPinned ? "fill-amber-500 text-amber-550 dark:text-amber-400" : ""}`} />
@@ -851,7 +875,7 @@ export default function App() {
               <button
                 id={`context-notify-${contextMenu.app.id}`}
                 onClick={() => handleToggleNotifications(contextMenu.app.id)}
-                className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-xl flex items-center justify-between transition-all cursor-pointer"
+                className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-xl flex items-center justify-between transition-all duration-200 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-95 cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   {contextMenu.app.notificationsEnabled ? (
@@ -875,13 +899,58 @@ export default function App() {
                   setSelectedApp(contextMenu.app);
                   setContextMenu(null);
                 }}
-                className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2 transition-all cursor-pointer"
+                className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2 transition-all duration-200 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-95 cursor-pointer"
               >
+                <img src={null as any} className="hidden" onError={(e) => {}} referrerPolicy="no-referrer" />
                 <Info className="w-3.5 h-3.5" />
                 មើលព័ត៌មាន (View Details)
               </button>
+
+              <div className="border-t border-slate-100 dark:border-slate-800/80 my-1" />
+
+              {/* Report App option */}
+              <button
+                id={`context-report-${contextMenu.app.id}`}
+                onClick={() => handleReportApp(contextMenu.app)}
+                className="w-full text-left px-3 py-2 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl flex items-center gap-2 transition-all duration-200 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-95 cursor-pointer"
+              >
+                <Flag className="w-3.5 h-3.5 text-red-500" />
+                {language === "kh" ? "រាយការណ៍កម្មវិធី (Report App)" : "Report Suspicious App"}
+              </button>
             </div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Report Confirmation Toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            id="report-confirmation-toast"
+            className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-4 rounded-2xl shadow-2xl border border-slate-800 dark:border-slate-700/60 max-w-sm backdrop-blur-md"
+          >
+            <div className="p-2 bg-red-500/10 text-red-500 rounded-xl">
+              <ShieldAlert className="w-5 h-5" />
+            </div>
+            <div className="flex-1 pr-2">
+              <p className="text-xs font-bold font-sans">
+                {language === "kh" ? "បានរាយការណ៍ជោគជ័យ" : "Report Submitted"}
+              </p>
+              <p className="text-[11px] text-slate-300 mt-0.5 font-medium leading-relaxed">
+                {toast.message}
+              </p>
+            </div>
+            <button
+              onClick={() => setToast(null)}
+              className="p-1 hover:bg-white/10 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+              aria-label="Dismiss Toast"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </motion.div>
         )}
       </AnimatePresence>
 
