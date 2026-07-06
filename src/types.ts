@@ -30,6 +30,8 @@ export interface AppItem {
   fileSafetyScore: number;
   permissions: string[];
   versionHistory?: VersionRelease[];
+  isPinned?: boolean;
+  notificationsEnabled?: boolean;
 }
 
 export interface Review {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   Search, 
   ShieldCheck, 
@@ -18,7 +18,21 @@ import {
   Moon,
   Info,
   ShieldAlert,
-  Compass
+  Compass,
+  Pin,
+  Bell,
+  BellOff,
+  Download,
+  Check,
+  BookOpen,
+  Wallet,
+  FileText,
+  Gamepad2,
+  Map,
+  Music,
+  ShoppingBag,
+  Camera,
+  Heart
 } from "lucide-react";
 import { initialApps } from "./initialApps";
 import { AppItem, Review, CATEGORIES, Message } from "./types";
@@ -34,6 +48,10 @@ export default function App() {
   const [apps, setApps] = useState<AppItem[]>(() => {
     const saved = localStorage.getItem("khmer_appstore_apps");
     return saved ? JSON.parse(saved) : initialApps;
+  });
+  const [language, setLanguage] = useState<"kh" | "en">(() => {
+    const saved = localStorage.getItem("khmer_appstore_language");
+    return (saved === "en" || saved === "kh") ? saved : "kh";
   });
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>(""); // starts empty
@@ -61,6 +79,39 @@ export default function App() {
   });
 
   const [activeTab, setActiveTab] = useState<"store" | "security" | "support" | "backup" | "admin">("store");
+  
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [isMac, setIsMac] = useState<boolean>(false);
+
+  useEffect(() => {
+    setIsMac(navigator.userAgent.toUpperCase().indexOf("MAC") >= 0);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check for Cmd+K (Mac) or Ctrl+K (Windows/Linux)
+      if ((e.ctrlKey || e.metaKey) && (e.key === "k" || e.key === "K")) {
+        e.preventDefault();
+        
+        // Force the active tab to "store" to expose the search input
+        if (activeTab !== "store") {
+          setActiveTab("store");
+          setTimeout(() => {
+            searchInputRef.current?.focus();
+            searchInputRef.current?.select();
+          }, 80);
+        } else {
+          searchInputRef.current?.focus();
+          searchInputRef.current?.select();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [activeTab]);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     const saved = localStorage.getItem("khmer_appstore_dark_mode");
     return saved ? JSON.parse(saved) : false;
@@ -84,10 +135,67 @@ export default function App() {
     ];
   });
 
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    app: AppItem;
+  } | null>(null);
+
+  // Close context menu on window click
+  useEffect(() => {
+    const handleCloseMenu = () => setContextMenu(null);
+    window.addEventListener("click", handleCloseMenu);
+    return () => {
+      window.removeEventListener("click", handleCloseMenu);
+    };
+  }, []);
+
+  const handleContextMenu = (app: AppItem, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Safety margin positioning to keep the menu inside the viewport
+    const menuWidth = 240;
+    const menuHeight = 260;
+    let x = e.clientX;
+    let y = e.clientY;
+    
+    if (x + menuWidth > window.innerWidth) {
+      x = window.innerWidth - menuWidth - 10;
+    }
+    if (y + menuHeight > window.innerHeight) {
+      y = window.innerHeight - menuHeight - 10;
+    }
+    
+    // Ensure coordinates are not negative
+    x = Math.max(10, x);
+    y = Math.max(10, y);
+
+    setContextMenu({
+      x,
+      y,
+      app
+    });
+  };
+
+  const handleTogglePin = (appId: string) => {
+    setApps(prev => prev.map(a => a.id === appId ? { ...a, isPinned: !a.isPinned } : a));
+    setContextMenu(null);
+  };
+
+  const handleToggleNotifications = (appId: string) => {
+    setApps(prev => prev.map(a => a.id === appId ? { ...a, notificationsEnabled: !a.notificationsEnabled } : a));
+    setContextMenu(null);
+  };
+
   // Persist State Updates inside LocalStorage
   useEffect(() => {
     localStorage.setItem("khmer_appstore_apps", JSON.stringify(apps));
   }, [apps]);
+
+  useEffect(() => {
+    localStorage.setItem("khmer_appstore_language", language);
+  }, [language]);
 
   useEffect(() => {
     localStorage.setItem("khmer_appstore_reviews", JSON.stringify(appReviews));
@@ -252,6 +360,11 @@ export default function App() {
     const matchesCategory = selectedCategory === "All" || app.category === selectedCategory;
     
     return matchesSearch && matchesCategory;
+  }).sort((a, b) => {
+    // Sort pinned items to the very top
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
+    return 0;
   });
 
   return (
@@ -362,10 +475,21 @@ export default function App() {
               <span>Auto Update: {autoUpdateEnabled ? "ON" : "OFF"}</span>
             </button>
 
+            {/* Language Switcher */}
+            <button
+              onClick={() => setLanguage(l => l === "kh" ? "en" : "kh")}
+              id="language-toggle-btn"
+              className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 font-extrabold text-xs rounded-xl border border-indigo-100/30 dark:border-indigo-900/20 transition-all flex items-center gap-1.5 cursor-pointer"
+              aria-label="Switch Language"
+            >
+              <span className="text-xs">🌐</span>
+              <span className="font-mono uppercase text-[10px] tracking-wider">{language === "kh" ? "EN" : "KH"}</span>
+            </button>
+
             {/* Dark/Light Toggle */}
             <button
               onClick={() => setIsDarkMode(!isDarkMode)}
-              className="p-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-350 rounded-xl transition-all"
+              className="p-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-350 rounded-xl transition-all cursor-pointer"
               aria-label="Toggle Theme"
             >
               {isDarkMode ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
@@ -477,13 +601,18 @@ export default function App() {
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
                 <input
+                  ref={searchInputRef}
                   id="app-search-input"
                   type="text"
-                  placeholder="ស្វែងរកកម្មវិធី អ្នកបង្កើត ឬប្រភេទទិន្នន័យ..."
+                  placeholder={language === "kh" ? "ស្វែងរកកម្មវិធី អ្នកបង្កើត ឬប្រភេទទិន្នន័យ..." : "Search apps, developers, or categories..."}
                   value={searchQuery === " " ? "" : searchQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl pl-11 pr-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/20 text-slate-800 dark:text-slate-100 focus:outline-hidden"
+                  className="w-full bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl pl-11 pr-18 py-3 text-sm focus:ring-2 focus:ring-indigo-500/20 text-slate-800 dark:text-slate-100 focus:outline-hidden"
                 />
+                <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 text-slate-400 dark:text-slate-500 px-1.5 py-0.5 rounded-md font-sans text-[10px] font-bold select-none pointer-events-none shadow-2xs">
+                  <span className="text-[9px] font-medium mr-0.5">{isMac ? "⌘" : "Ctrl"}</span>
+                  <span>K</span>
+                </div>
               </div>
 
               {/* Category tabs filters */}
@@ -534,9 +663,11 @@ export default function App() {
                     <AppCard 
                       key={app.id}
                       app={app}
+                      language={language}
                       onSelect={(app) => setSelectedApp(app)}
                       onDownload={handleDownload}
                       onUpdate={handleUpdate}
+                      onContextMenu={handleContextMenu}
                     />
                   ))}
                 </div>
@@ -584,6 +715,7 @@ export default function App() {
           return (
             <AppDetailsModal 
               app={liveApp}
+              language={language}
               onClose={() => setSelectedApp(null)}
               onDownload={(app, e) => handleDownload(app, e)}
               onUpdate={(app, e) => handleUpdate(app, e)}
@@ -609,6 +741,149 @@ export default function App() {
           </p>
         </div>
       </footer>
+
+      {/* Context Menu Shortcut Menu */}
+      <AnimatePresence>
+        {contextMenu && (
+          <div 
+            id="shortcut-context-menu"
+            className="fixed z-50 w-60 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-xl p-2 animate-fadeIn"
+            style={{ 
+              left: `${contextMenu.x}px`, 
+              top: `${contextMenu.y}px` 
+            }}
+            onClick={(e) => e.stopPropagation()}
+            onContextMenu={(e) => e.preventDefault()}
+          >
+            {/* Header section with App info */}
+            <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800/80 mb-1 flex items-center gap-2.5">
+              <div className="p-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg text-indigo-600 dark:text-indigo-400">
+                {/* Dynamically get icon component */}
+                {(() => {
+                  const name = contextMenu.app.iconName;
+                  switch (name) {
+                    case "BookOpen": return <BookOpen className="w-4.5 h-4.5" />;
+                    case "Wallet": return <Wallet className="w-4.5 h-4.5" />;
+                    case "FileText": return <FileText className="w-4.5 h-4.5" />;
+                    case "ShieldAlert": return <ShieldAlert className="w-4.5 h-4.5" />;
+                    case "Gamepad2": return <Gamepad2 className="w-4.5 h-4.5" />;
+                    case "Map": return <Map className="w-4.5 h-4.5" />;
+                    case "Music": return <Music className="w-4.5 h-4.5" />;
+                    case "Compass": return <Compass className="w-4.5 h-4.5" />;
+                    case "ShoppingBag": return <ShoppingBag className="w-4.5 h-4.5" />;
+                    case "Camera": return <Camera className="w-4.5 h-4.5" />;
+                    case "Heart": return <Heart className="w-4.5 h-4.5" />;
+                    default: return <BookOpen className="w-4.5 h-4.5" />;
+                  }
+                })()}
+              </div>
+              <div className="overflow-hidden">
+                <h4 className="font-bold text-slate-800 dark:text-slate-100 text-xs truncate leading-snug">
+                  {contextMenu.app.nameKhmer}
+                </h4>
+                <p className="text-[9px] text-slate-400 font-mono truncate">
+                  {contextMenu.app.name}
+                </p>
+              </div>
+            </div>
+
+            {/* Actions list */}
+            <div className="space-y-0.5">
+              {/* Quick Install/Update Option */}
+              {contextMenu.app.status === "not_installed" && (
+                <button
+                  id={`context-install-${contextMenu.app.id}`}
+                  onClick={() => {
+                    handleDownload(contextMenu.app);
+                    setContextMenu(null);
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 rounded-xl flex items-center gap-2 transition-all cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  ទាញយកភ្លាមៗ (Quick Install)
+                </button>
+              )}
+
+              {contextMenu.app.status === "update_available" && (
+                <button
+                  id={`context-update-${contextMenu.app.id}`}
+                  onClick={() => {
+                    handleUpdate(contextMenu.app);
+                    setContextMenu(null);
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs font-bold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 rounded-xl flex items-center gap-2 transition-all animate-pulse cursor-pointer"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  បច្ចុប្បន្នភាពភ្លាមៗ (Quick Update)
+                </button>
+              )}
+
+              {contextMenu.app.status === "installed" && (
+                <div className="w-full px-3 py-2 text-xs font-semibold text-slate-400 dark:text-slate-500 rounded-xl flex items-center gap-2 select-none">
+                  <Check className="w-3.5 h-3.5 text-emerald-500" />
+                  តំឡើងរួចរាល់ (Installed)
+                </div>
+              )}
+
+              {(contextMenu.app.status === "downloading" || contextMenu.app.status === "updating") && (
+                <div className="w-full px-3 py-2 text-xs font-semibold text-slate-400 dark:text-slate-500 rounded-xl flex items-center gap-2 select-none">
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  កំពុងដំណើរការ (Processing...)
+                </div>
+              )}
+
+              {/* Pin/Unpin option */}
+              <button
+                id={`context-pin-${contextMenu.app.id}`}
+                onClick={() => handleTogglePin(contextMenu.app.id)}
+                className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-xl flex items-center justify-between transition-all cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <Pin className={`w-3.5 h-3.5 ${contextMenu.app.isPinned ? "fill-amber-500 text-amber-550 dark:text-amber-400" : ""}`} />
+                  <span>{contextMenu.app.isPinned ? "ដកការខ្ទាស់ (Unpin App)" : "ខ្ទាស់ទៅខាងលើ (Pin to Top)"}</span>
+                </div>
+                {contextMenu.app.isPinned && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                )}
+              </button>
+
+              {/* Toggle Notifications option */}
+              <button
+                id={`context-notify-${contextMenu.app.id}`}
+                onClick={() => handleToggleNotifications(contextMenu.app.id)}
+                className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-xl flex items-center justify-between transition-all cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  {contextMenu.app.notificationsEnabled ? (
+                    <BellOff className="w-3.5 h-3.5 text-red-500" />
+                  ) : (
+                    <Bell className="w-3.5 h-3.5" />
+                  )}
+                  <span>{contextMenu.app.notificationsEnabled ? "បិទការជូនដំណឹង (Mute)" : "បើកការជូនដំណឹង (Notify)"}</span>
+                </div>
+                {contextMenu.app.notificationsEnabled && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                )}
+              </button>
+
+              <div className="border-t border-slate-100 dark:border-slate-800/80 my-1" />
+
+              {/* View Details option */}
+              <button
+                id={`context-details-${contextMenu.app.id}`}
+                onClick={() => {
+                  setSelectedApp(contextMenu.app);
+                  setContextMenu(null);
+                }}
+                className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2 transition-all cursor-pointer"
+              >
+                <Info className="w-3.5 h-3.5" />
+                មើលព័ត៌មាន (View Details)
+              </button>
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );
